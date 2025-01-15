@@ -19,6 +19,7 @@ const Camera = forwardRef<HTMLVideoElement, CameraProps>((props, ref) => {
     const setupVideoInput = async () => {
       try {
         if (!videoRef.current) return;
+        // getUserMedia
         const stream = await navigator.mediaDevices.getUserMedia({
           video: {
             width: width,
@@ -26,6 +27,7 @@ const Camera = forwardRef<HTMLVideoElement, CameraProps>((props, ref) => {
           },
           audio: false,
         });
+        // srcObject
         videoRef.current.srcObject = stream;
         videoRef.current.onloadedmetadata = () => {
           videoRef.current?.play();
@@ -34,6 +36,7 @@ const Camera = forwardRef<HTMLVideoElement, CameraProps>((props, ref) => {
         console.error("Error setting up video input:", error);
       }
     };
+    // play
     setupVideoInput();
   }, []);
 
