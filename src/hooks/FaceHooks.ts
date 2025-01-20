@@ -44,6 +44,8 @@ const useFaceDetection = () => {
     console.log("result", labeledDescriptor);
 
     setDetection(result.detection);
+
+    return labeledDescriptor;
   };
 
   return { detection, getDescriptors };
