@@ -16,10 +16,10 @@ const DetectFace: React.FC = () => {
     const detectFace = async () => {
       try {
         // Get the face descriptors
-        const descriptors = await getDescriptors(videoRef);
-        if (descriptors) {
+        const descriptorsResult = await getDescriptors(videoRef);
+        if (descriptorsResult) {
           navigate("/detected", {
-            state: descriptors,
+            state: descriptorsResult.descriptors,
           }); // Navigate to the detected page
         }
       } catch (error) {

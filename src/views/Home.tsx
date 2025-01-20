@@ -1,7 +1,17 @@
 import { Button } from "@/components/ui/button";
+import { useDB } from "@/hooks/DBhooks";
 import { NavLink } from "react-router";
 
 const Home = () => {
+  const { getAllFaces, getAllVotes, deleteAllFromDB } = useDB();
+  console.log("Faces:", getAllFaces(), "Votes:", getAllVotes());
+
+  const handleClearDatabase = () => {
+    try {
+      deleteAllFromDB();
+    } catch {}
+  };
+
   return (
     <>
       <h1 className="text-center p-4 text-lg">Home</h1>
@@ -21,7 +31,7 @@ const Home = () => {
         <NavLink to={"/face"}>
           <Button>Start Voting</Button>
         </NavLink>
-        <Button>Clear Database</Button>
+        <Button onClick={handleClearDatabase}>Clear Database</Button>
       </section>
     </>
   );

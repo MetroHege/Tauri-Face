@@ -11,9 +11,7 @@ const useDB = () => {
 
   useEffect(() => {
     try {
-      const dbInstance = new Loki("1.json", {
-        persistenceMethod: "fs",
-      });
+      const dbInstance = new Loki("1.json");
 
       // load the database if it exists
       dbInstance.loadDatabase({}, () => {
@@ -76,6 +74,8 @@ const useDB = () => {
     faceCollection.clear();
     voteCollection.clear();
     db.saveDatabase();
+    setFaceCollection(null);
+    setVoteCollection(null);
   };
 
   return { addFaces, addVotes, getAllFaces, getAllVotes, deleteAllFromDB };

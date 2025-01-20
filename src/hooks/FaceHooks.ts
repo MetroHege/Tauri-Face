@@ -48,7 +48,14 @@ const useFaceDetection = () => {
     return labeledDescriptor;
   };
 
-  return { detection, getDescriptors };
+  const matchFace = async (currentDescriptors, descriptorsFromDB) => {
+    if (!currentDescriptors && descriptorsFromDB.length > 0) {
+      const faceMatcher = new faceapi.FaceMatcher(descriptorsFromDB);
+      return faceMatcher.matchDescriptor(currentDescriptors);
+    }
+  };
+
+  return { detection, getDescriptors, matchFace };
 };
 
 export { useFaceDetection };
