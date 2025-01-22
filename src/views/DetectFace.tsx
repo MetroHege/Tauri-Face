@@ -3,15 +3,13 @@ import React, { useEffect, useRef } from "react";
 import Camera from "@/components/Camera";
 import { useFaceDetection } from "@/hooks/FaceHooks";
 import { useNavigate } from "react-router";
-import { useDB } from "@/hooks/DBhooks";
+import { useDbContext } from "@/hooks/ContextHooks";
 
 const DetectFace: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement>(null); // Reference to the video element
   const { detection, getDescriptors, matchFace } = useFaceDetection();
   const navigate = useNavigate();
-  const { getAllFaces } = useDB();
-
-  const faces = getAllFaces();
+  const { faces } = useDbContext();
 
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout> | null = null;
@@ -19,20 +17,19 @@ const DetectFace: React.FC = () => {
     // Detect face from video frames
     const detectFace = async (faces: Float32Array[]) => {
       try {
-        // Get the face descriptors
         const descriptorsResult = await getDescriptors(videoRef);
-        if (!descriptorsResult) {
-          return;
-        }
-
-        // MatchFace
-        const match = await matchFace(descriptorsResult.result, faces);
-        console.log("match", match);
-
+        // matchFace
         if (descriptorsResult) {
-          navigate("/detected", {
-            state: descriptorsResult.labeledDescriptor.toJSON(),
-          }); // Navigate to the detected page
+          const match = await matchFace(
+            descriptorsResult.result.descriptor,
+            faces
+          );
+          console.log("mätsi", match);
+          if (match && match.distance > 0.3) {
+            navigate("/detected", {
+              state: descriptorsResult.labeledDescriptor.toJSON(),
+            });
+          }
         }
       } catch (error) {
         console.error("Error detecting face:", error);
@@ -64,21 +61,23 @@ const DetectFace: React.FC = () => {
       }
     };
 
-    startDetection(); // Start detection
+    startDetection();
 
     // Cleanup on unmount
     return () => {
-      if (timer) clearTimeout(timer);
+      if (timer) {
+        clearTimeout(timer);
+      }
     };
   }, []);
 
-  // console.log("Detection object:", detection);
+  // console.log('Detection object', detection);
 
   return (
     <div style={{ textAlign: "center", marginTop: "20px" }}>
       <h1>Face Detection</h1>
       <div style={{ position: "relative" }}>
-        <Camera ref={videoRef} width={1280} aspect={16 / 9} />
+        <Camera ref={videoRef} width={800} aspect={16 / 9} />
         {detection && (
           <div
             style={{
