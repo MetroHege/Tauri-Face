@@ -1,10 +1,9 @@
 import { Button } from "@/components/ui/button";
-import { useDB } from "@/hooks/DBhooks";
+import { useDbContext } from "@/hooks/ContextHooks";
 import { NavLink } from "react-router";
 
 const Home = () => {
-  const { getAllFaces, getAllVotes, deleteAllFromDB } = useDB();
-  console.log("Faces:", getAllFaces(), "Votes:", getAllVotes());
+  const { getAllFaces, getAllVotes, deleteAllFromDB } = useDbContext();
 
   const handleClearDatabase = () => {
     try {

@@ -1,3 +1,4 @@
+// hooks/DBHooks.ts
 import { useEffect, useState } from "react";
 import Loki from "lokijs";
 import { Vote } from "@/types/localTypes";
@@ -13,19 +14,15 @@ const useDB = () => {
     try {
       const dbInstance = new Loki("1.json");
 
-      // load the database if it exists
+      // load database if it exists
       dbInstance.loadDatabase({}, () => {
-        // collections
-        // create or get the collection of faces
+        // get or create collection of documents
         const faces =
           dbInstance.getCollection<Float32Array>("faces") ||
           dbInstance.addCollection("faces");
-
-        // create or get the collection of votes
         const votes =
           dbInstance.getCollection<Vote>("votes") ||
           dbInstance.addCollection("votes");
-
         setDB(dbInstance);
         setFaceCollection(faces);
         setVoteCollection(votes);
@@ -51,7 +48,7 @@ const useDB = () => {
 
   const addFaces = (face: Float32Array) => {
     if (!db || !faceCollection) {
-      return new Error("No database or collection");
+      throw new Error("No database or collection");
     }
     const response = faceCollection.insert(face);
     db.saveDatabase();
@@ -68,7 +65,7 @@ const useDB = () => {
   };
 
   const deleteAllFromDB = () => {
-    if (!db || !faceCollection || !voteCollection) {
+    if (!db || !voteCollection || !faceCollection) {
       throw new Error("No database or collection");
     }
     faceCollection.clear();
@@ -77,8 +74,7 @@ const useDB = () => {
     setFaceCollection(null);
     setVoteCollection(null);
   };
-
-  return { addFaces, addVotes, getAllFaces, getAllVotes, deleteAllFromDB };
+  return { db, addFaces, addVotes, getAllFaces, getAllVotes, deleteAllFromDB };
 };
 
 export { useDB };

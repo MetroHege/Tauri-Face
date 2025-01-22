@@ -3,23 +3,35 @@ import React, { useEffect, useRef } from "react";
 import Camera from "@/components/Camera";
 import { useFaceDetection } from "@/hooks/FaceHooks";
 import { useNavigate } from "react-router";
+import { useDB } from "@/hooks/DBhooks";
 
 const DetectFace: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement>(null); // Reference to the video element
-  const { detection, getDescriptors } = useFaceDetection();
+  const { detection, getDescriptors, matchFace } = useFaceDetection();
   const navigate = useNavigate();
+  const { getAllFaces } = useDB();
+
+  const faces = getAllFaces();
 
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout> | null = null;
 
     // Detect face from video frames
-    const detectFace = async () => {
+    const detectFace = async (faces: Float32Array[]) => {
       try {
         // Get the face descriptors
         const descriptorsResult = await getDescriptors(videoRef);
+        if (!descriptorsResult) {
+          return;
+        }
+
+        // MatchFace
+        const match = await matchFace(descriptorsResult.result, faces);
+        console.log("match", match);
+
         if (descriptorsResult) {
           navigate("/detected", {
-            state: descriptorsResult.descriptors,
+            state: descriptorsResult.labeledDescriptor.toJSON(),
           }); // Navigate to the detected page
         }
       } catch (error) {
@@ -27,7 +39,7 @@ const DetectFace: React.FC = () => {
       }
 
       // Schedule the next detection
-      timer = setTimeout(detectFace, 100);
+      timer = setTimeout(detectFace, 100, faces);
     };
 
     // Initialize the video feed and start detection
@@ -43,7 +55,9 @@ const DetectFace: React.FC = () => {
             }
           });
 
-          detectFace(); // Start detecting faces
+          if (faces) {
+            detectFace(faces); // Start detecting faces
+          }
         }
       } catch (error) {
         console.error("Error initializing video feed:", error);
