@@ -1,15 +1,14 @@
 import React, { useEffect, useRef } from "react";
-
 import Camera from "@/components/Camera";
 import { useFaceDetection } from "@/hooks/FaceHooks";
 import { useNavigate } from "react-router";
-import { useDbContext } from "@/hooks/ContextHooks";
+import { useStore } from "@/stores/DBStore";
 
 const DetectFace: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement>(null); // Reference to the video element
   const { detection, getDescriptors, matchFace } = useFaceDetection();
   const navigate = useNavigate();
-  const { faces } = useDbContext();
+  const { faces } = useStore();
 
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout> | null = null;
@@ -20,6 +19,14 @@ const DetectFace: React.FC = () => {
         const descriptorsResult = await getDescriptors(videoRef);
         // matchFace
         if (descriptorsResult) {
+          // case 1: no faces in db
+          if (faces.length === 0) {
+            console.log("no faces in db");
+            navigate("/detected", {
+              state: descriptorsResult.labeledDescriptor.toJSON(),
+            });
+          }
+          // case 2: match face
           const match = await matchFace(
             descriptorsResult.result.descriptor,
             faces

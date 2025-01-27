@@ -4,8 +4,16 @@ import Layout from "./views/Layout";
 import Home from "./views/Home";
 import DetectFace from "./views/DetectFace";
 import Detected from "./views/Detected";
+import { useStore } from "./stores/DBStore";
+import { useEffect } from "react";
 
 const App = () => {
+  const { init } = useStore();
+
+  useEffect(() => {
+    init();
+  }, []);
+
   return (
     <BrowserRouter>
       <Routes>
