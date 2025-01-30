@@ -1,15 +1,14 @@
 import { RefObject, useEffect, useState } from "react";
 import { GestureRecognizer, FilesetResolver } from "@mediapipe/tasks-vision";
-import { m } from "node_modules/react-router/dist/development/fog-of-war-BhhVTjSZ.d.mts";
 
 const useGestureRecognition = (videoRef: RefObject<HTMLVideoElement>) => {
   const [gesture, setGesture] = useState("");
+  const [savedGesture, setSavedGesture] = useState("");
 
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout> | null = null;
     let gestureRecognizer: GestureRecognizer | null = null;
 
-    // Initialize the GestureRecognizer
     const initializeGestureRecognizer = async () => {
       const filesetResolver = await FilesetResolver.forVisionTasks("/wasm");
       gestureRecognizer = await GestureRecognizer.createFromOptions(
@@ -32,7 +31,23 @@ const useGestureRecognition = (videoRef: RefObject<HTMLVideoElement>) => {
           videoRef.current,
           nowInMs
         );
-        console.log(results);
+
+        results.gestures.forEach((categories) => {
+          categories.forEach((category) => {
+            const currentGesture = category.categoryName;
+            if (currentGesture !== "None") {
+              if (
+                currentGesture === "Thumb_Up" ||
+                currentGesture === "Thumb_Down"
+              ) {
+                setGesture(currentGesture);
+                setSavedGesture(currentGesture);
+              } else if (currentGesture !== gesture) {
+                setGesture(currentGesture);
+              }
+            }
+          });
+        });
       }
       timer = setTimeout(processVideoFrames, 100);
     };
@@ -54,8 +69,22 @@ const useGestureRecognition = (videoRef: RefObject<HTMLVideoElement>) => {
         console.log(error);
       }
     };
+
     main();
+
+    return () => {
+      if (timer) {
+        clearTimeout(timer);
+      }
+      if (gestureRecognizer) {
+        gestureRecognizer.close();
+        gestureRecognizer = null;
+      }
+    };
   }, []);
+
+  console.log(gesture, savedGesture);
+  return { gesture, savedGesture };
 };
 
 export { useGestureRecognition };

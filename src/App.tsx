@@ -7,6 +7,7 @@ import Detected from "./views/Detected";
 import { useStore } from "./stores/DBStore";
 import { useEffect } from "react";
 import DetectGesture from "./views/DetectGesture";
+import Result from "./views/Result";
 
 const App = () => {
   const { init } = useStore();
@@ -23,6 +24,7 @@ const App = () => {
           <Route path="/face" element={<DetectFace />} />
           <Route path="/detected" element={<Detected />} />
           <Route path="/gesture/:faceName" element={<DetectGesture />} />
+          <Route path="/result" element={<Result />} />
         </Route>
       </Routes>
     </BrowserRouter>
